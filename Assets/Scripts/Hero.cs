@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using DG.Tweening;
 public enum HeroType
 {
     None = 0,
@@ -12,17 +12,16 @@ public enum HeroType
     Hunter,
     Saw,
 }
-
 public class Hero : MonoBehaviour
 {
-    public SpriteRenderer spriteRenderer;
+    public SpriteRenderer spriteRenderer, health;
     public HeroType type;
     public int hp, damage;
     public bool canGoStraight, canGoCross, canSwim;
+    public SpriteRenderer bottom;
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public void Init(HeroType type)
@@ -38,8 +37,9 @@ public class Hero : MonoBehaviour
                 spriteRenderer.sprite = SpriteHolder.Instance.HeroSprites[1];
                 hp = 1;
                 damage = 1;
-                canGoStraight = false;
-                canGoCross = true;
+                canGoStraight = true;
+                canGoCross = false;
+                canSwim = true;
                 break;
             case HeroType.Elephant:
                 spriteRenderer.sprite = SpriteHolder.Instance.HeroSprites[2];
@@ -53,7 +53,7 @@ public class Hero : MonoBehaviour
                 hp = 1;
                 damage = 1;
                 canGoStraight = true;
-                canGoCross = true;
+                canGoCross = false;
                 break;
             case HeroType.Lion:
                 spriteRenderer.sprite = SpriteHolder.Instance.HeroSprites[4];
@@ -73,13 +73,14 @@ public class Hero : MonoBehaviour
                 damage = 1;
                 canGoStraight = true;
                 canGoCross = false;
+                canSwim = true;
                 break;
             case HeroType.Hunter:
                 spriteRenderer.sprite = SpriteHolder.Instance.HeroSprites[7];
                 hp = 1;
                 damage = 1;
                 canGoStraight = true;
-                canGoCross = true;
+                canGoCross = false;
                 break;
             case HeroType.Saw:
                 spriteRenderer.sprite = SpriteHolder.Instance.HeroSprites[8];
@@ -89,18 +90,49 @@ public class Hero : MonoBehaviour
                 canGoCross = true;
                 break;
         }
+        Appear();
+        if (type == HeroType.None || type == HeroType.Base)
+            health.sprite = null;
+        else
+            health.sprite = SpriteHolder.Instance.fullHealth;
+        UpdateBottom();
     }
-
+    public void UpdateBottom()
+    {
+        if ((int)type >= 6 && (int)type <= 8)
+        {
+            bottom.sprite = SpriteHolder.Instance.humanBottom;
+        }
+        else if ((int)type >= 1 && (int)type <= 5)
+        {
+            bottom.sprite = SpriteHolder.Instance.animalBottom;
+        }
+        else bottom.sprite = null;
+    }
+    public void Disappear()
+    {
+        spriteRenderer.DOFade(0, 0.5f);
+    }
+    public void Appear()
+    {
+        transform.DOLocalMoveY(0.4f, 0);
+        transform.DOLocalMoveY(0f, 0.6f).SetEase(Ease.OutCubic);
+        spriteRenderer.DOFade(0, 0f);
+        spriteRenderer.DOFade(1, 1f);
+    }
     public void TakeDamage(int damage)
     {
         hp -= damage;
         if (hp <= 0)
         {
-            //dead ;
+            hp = 0;
+            health.sprite = null;
+            if (type == HeroType.Base)
+                GameController.Instance.GameOver(true);
         }
         else
         {
-            // effect tru mau
+            health.sprite = SpriteHolder.Instance.halfHealth;
         }
     }
 }

@@ -13,7 +13,8 @@ public class SpriteHolder : MonoBehaviour
     public Sprite canMoveSpr, canAtkSpr;
     public Sprite[] offsetMap; // 0 is grass 1 is ground
     public Sprite[] mapSprites; // 0 co 1 dat 2 nuoc 3 cau
-
+    public Sprite fullHealth, halfHealth;
+    public Sprite humanBottom, animalBottom;
     public Sprite GetMapSpriteById(int index)
     {
         return mapSprites[index];

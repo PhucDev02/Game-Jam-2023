@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using DG.Tweening;
 public class Board : MonoBehaviour
 {
     public static Board Instance;
@@ -9,6 +9,16 @@ public class Board : MonoBehaviour
         Instance = this;
     }
 
+    int[,] terrainMatrix = { { 0, 0, 0, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0 },
+                            { 3, 2, 2, 3, 2, 2, 3 },
+                            { 3, 2, 2, 3, 2, 2, 3 },
+                            { 3, 2, 2, 3, 2, 2, 3 },
+                            { 1, 1, 1, 1, 1, 1, 1 },
+                            { 1, 1, 1, 1, 1, 1, 1 },
+                            { 1, 1, 1, 1, 1, 1, 1 } };
     public Tile[,] map;
     public int ROW, COL;
     public GameObject tilePrefab;
@@ -25,16 +35,6 @@ public class Board : MonoBehaviour
 
     public void GenerateMap()
     {
-        int[,] terrainMatrix = { { 0, 0, 0, 0, 0, 0, 0 },
-                            { 0, 0, 0, 0, 0, 0, 0 },
-                            { 0, 0, 0, 0, 0, 0, 0 },
-                            { 0, 0, 0, 0, 0, 0, 0 },
-                            { 3, 2, 2, 3, 2, 2, 3 },
-                            { 3, 2, 2, 3, 2, 2, 3 },
-                            { 3, 2, 2, 3, 2, 2, 3 },
-                            { 1, 1, 1, 1, 1, 1, 1 },
-                            { 1, 1, 1, 1, 1, 1, 1 },
-                            { 1, 1, 1, 1, 1, 1, 1 } };
         for (int i = 0; i < ROW; i++)
         {
             for (int j = 0; j < COL; j++)
@@ -44,27 +44,37 @@ public class Board : MonoBehaviour
                 map[i, j].Init(i, j);
                 map[i, j].transform.localPosition = Vector3.right * (j - (int)(COL / 2)) + Vector3.up * ((int)(ROW / 2) - i);
                 map[i, j].GetComponent<SpriteRenderer>().sprite = SpriteHolder.Instance.GetMapSpriteById(terrainMatrix[i, j]);
-                if ((i + j) % 2 == 1 && terrainMatrix[i,j] < 2)
+                if ((i + j) % 2 == 1 && terrainMatrix[i, j] < 2)
                 {
                     map[i, j].GetComponent<SpriteRenderer>().sprite = SpriteHolder.Instance.offsetMap[terrainMatrix[i, j]];
                 }
             }
         }
-        transform.localScale = Vector3.one * .65f;
+        transform.localScale = Vector3.one * .67f;
     }
 
     public void GenerateHero()
     {
-        int[,] heroInit = { { 2, 3, 4, 5, 4, 3, 2 },
-                            { 1, 0, 7, 8, 6, 0, 1 },
+        int[,] heroInit = { { 0, 4, 0, 5, 0, 4, 0 },
+                            { 2, 0, 3, 0, 3, 0, 2 },
+                            { 0, 1, 0, 0, 0, 1, 0 },
                             { 0, 0, 0, 0, 0, 0, 0 },
                             { 0, 0, 0, 0, 0, 0, 0 },
                             { 0, 0, 0, 0, 0, 0, 0 },
-                            { 0, 0, 0, 0, 0, 0, 0 },
-                            { 0, 0, 0, 0, 0, 0, 0 },
-                            { 0, 0, 0, 0, 0, 0, 0 },
-                            { 6, 0, 0, 0, 0, 0, 6 },
-                            { 6, 6, 7, 8, 7, 6, 6 } };
+                            { 0, 0, 0, 0, 0, 0, 0 }, // song
+                            { 0, 6, 0, 0, 0, 6, 0 },
+                            { 6, 0, 6, 0, 6, 0, 6 },
+                            { 0, 7, 0, 8, 0, 7, 0 } };
+        //int[,] heroInit = { { 0, 4, 0, 5, 0, 4, 0 },
+        //                    { 2, 0, 3, 0, 3, 0, 2 },
+        //                    { 0, 1, 0, 0, 0, 1, 0 },
+        //                    { 0, 0, 0, 0, 0, 0, 0 },
+        //                    { 0, 0, 0, 0, 0, 0, 0 },
+        //                    { 0, 0, 0, 0, 0, 0, 0 },
+        //                    { 0, 0, 0, 0, 0, 0, 0 }, // song
+        //                    { 0, 6, 0, 0, 0, 0, 0 },
+        //                    { 0, 0, 0, 0, 0, 0, 0 },
+        //                    { 0, 7, 0, 0, 0, 7, 0 } };
 
         for (int i = 0; i < ROW; i++)
             for (int j = 0; j < COL; j++)
@@ -82,7 +92,7 @@ public class Board : MonoBehaviour
     public void SelectTile(Tile tile)
     {
         UnSelect();
-
+        tile.selecting.SetActive(true);
         if (map[tile.row, tile.col].hero.canGoStraight)
             HighlightTilesCanGoStraight(tile.row, tile.col);
 
@@ -91,6 +101,21 @@ public class Board : MonoBehaviour
 
         tileSelecting = tile;
         isSelecting = true;
+    }
+
+    public bool CheckTerrain(int row, int collumn, HeroType type)
+    {
+        // 0 co 1 dat 2 nuoc 3 cau
+        if (terrainMatrix[row, collumn] == 2) // is water
+        {
+            if (type == HeroType.Snake || type == HeroType.Poacher)
+            {
+                return true;
+            }
+            else return false;
+        }
+        else
+            return true;
     }
 
     public void HighlightTilesCanGoStraight(int tileRow, int tileCol)
@@ -107,14 +132,13 @@ public class Board : MonoBehaviour
                 int mode = -1;
                 if (CheckCanAttack(map[tileRow, tileCol].hero.type, map[r, c].hero.type))
                     mode = 1;
-                else if (map[r, c].hero.type == HeroType.None)
+                else if (map[r, c].hero.type == HeroType.None && CheckTerrain(r, c, map[tileRow, tileCol].hero.type))
                     mode = 2;
 
                 map[r, c].Highlight(mode);
             }
         }
     }
-
     public void HighlightTilesCanGoCross(int tileRow, int tileCol)
     {
         int[] dr = { -1, -1, 1, 1 };
@@ -129,7 +153,7 @@ public class Board : MonoBehaviour
                 int mode = -1;
                 if (CheckCanAttack(map[tileRow, tileCol].hero.type, map[r, c].hero.type))
                     mode = 1;
-                else if (map[r, c].hero.type == HeroType.None)
+                else if (map[r, c].hero.type == HeroType.None && CheckTerrain(r, c, map[tileRow, tileCol].hero.type))
                     mode = 2;
 
                 map[r, c].Highlight(mode);
@@ -178,12 +202,84 @@ public class Board : MonoBehaviour
 
     public void MoveHero(Tile targetTile)
     {
-        Swap(tileSelecting, targetTile);
+        UnSelect();
+        PlayMoveSound();
+        tileSelecting.hero.transform.DOMove(targetTile.transform.position, 0.5f).SetEase(Ease.OutSine).OnComplete(() =>
+        {
+            tileSelecting.hero.transform.localPosition = Vector3.zero;
+            Swap(tileSelecting, targetTile);
+            GameController.Instance.SwitchTurn();
+        });
     }
 
     public void AttackHero(Tile targetTile)
     {
-        targetTile.hero.Init(HeroType.None);
-        MoveHero(targetTile);
+        UnSelect();
+        // move xong thi set lai vi tri + backend
+        Vector3 halfDistance = (targetTile.transform.position - tileSelecting.transform.position) / 2;
+        tileSelecting.hero.transform.DOMove(targetTile.transform.position + Vector3.back * 5 - halfDistance, 0.25f).SetEase(Ease.InSine).OnComplete(() =>
+        {
+            targetTile.hero.TakeDamage(tileSelecting.hero.damage);
+            PlayAttackSound();
+            targetTile.hero.transform.DOShakePosition(0.2f, 0.1f, 1, 0).SetLoops(2, LoopType.Yoyo);
+            if (targetTile.hero.hp == 0) //dam chet luon
+            {
+                targetTile.hero.Disappear();
+                tileSelecting.hero.transform.DOMove(targetTile.transform.position + Vector3.back * 5, 0.25f).SetEase(Ease.OutCubic).OnComplete(() =>
+                    {
+                        targetTile.hero.Init(HeroType.None);
+                        Swap(tileSelecting, targetTile);
+                        tileSelecting.hero.transform.localPosition = Vector3.zero;
+                        GameController.Instance.SwitchTurn();
+                    });
+            }
+            else
+            {
+                tileSelecting.hero.transform.DOMove(tileSelecting.transform.position, 0.25f).SetEase(Ease.InSine);
+                GameController.Instance.SwitchTurn();
+            }
+        });
+    }
+    public void PlayMoveSound()
+    {
+        AudioManager.Instance.Play("MoveSound");
+    }
+    public void PlayAttackSound()
+    {
+        switch (tileSelecting.hero.type)
+        {
+            case HeroType.Snake:
+                AudioManager.Instance.Play("SnakeSound");
+                break;
+            case HeroType.Elephant:
+                AudioManager.Instance.Play("ElephantSound");
+                break;
+            case HeroType.Rat:
+                AudioManager.Instance.Play("RatSound");
+                break;
+            case HeroType.Lion:
+                AudioManager.Instance.Play("LionRoar");
+                break;
+            case HeroType.Saw:
+                AudioManager.Instance.Play("ChainSaw");
+                break;
+            default:
+                break;
+        }
+    }
+    public bool IsHumanAlive()
+    {
+        int saw = 0, poacher = 0;
+        for (int i = 0; i < ROW; i++)
+        {
+            for (int j = 0; j < COL; j++)
+            {
+                if (map[i, j].hero.type == HeroType.Saw) saw++;
+                if (map[i, j].hero.type == HeroType.Poacher) poacher++;
+            }
+        }
+        if (poacher == 0 && saw == 0)
+            return false;
+        return true;
     }
 }
