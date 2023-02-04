@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
+using TMPro;
 public class GameController : MonoBehaviour
 {
     #region Singleton
@@ -12,6 +13,8 @@ public class GameController : MonoBehaviour
     }
     #endregion
     public bool isHumanTurn;
+    public TextMeshProUGUI winner;
+    public GameObject gameOverPanel;
     private void Start()
     {
         isHumanTurn = true;
@@ -26,29 +29,32 @@ public class GameController : MonoBehaviour
     }
     public void GameOver(bool humanWin)
     {
+        AudioManager.Instance.Play("CompleteGame");
+
+        gameOverPanel.SetActive(true);
         if(humanWin)
         {
-            Logger.Log("Human win");
+            winner.text = "Human win !";
         }
         else
         {
-            Logger.Log("Animal Win");
+            winner.text = "Animal win !";
         }
     }
     public void Reload()
     {
         DOTween.KillAll();
-        SceneManager.LoadScene("Main");
+        LoadSceneEffect.Instance.PlayLoadSceneEffect("Main");
     }
 
     public void GoHome()
     {
         DOTween.KillAll();
-        SceneManager.LoadScene("Home");
+        LoadSceneEffect.Instance.PlayLoadSceneEffect("Home");
     }
 
     public void PlayGame()
     {
-        SceneManager.LoadScene("Main");
+        LoadSceneEffect.Instance.PlayLoadSceneEffect("Main");
     }
 }

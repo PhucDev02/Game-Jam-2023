@@ -22,6 +22,7 @@ public class Tile : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (hero.type == HeroType.Base&&status!=TileStatus.CanAttack) return;
         if (Board.Instance.isSelecting)
         {
             if (status == TileStatus.CanMoveTo)

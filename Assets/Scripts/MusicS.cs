@@ -1,21 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MusicS : MonoBehaviour
 {
     public Sprite musicOn;
     public Sprite musicOff;
 
-    SpriteRenderer sr;
-
+   public Image sr;
+    private void Awake()
+    {
+        this.RegisterListener(EventID.ToggleMusic, (param) => UpdateMusic());
+    }
     private void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
+        UpdateMusic();
     }
 
-    private void Update()
+    private void UpdateMusic()
     {
-        sr.sprite = AudioManager.Instance.musicOn ? musicOn : musicOff;
+        sr.sprite = PlayerPrefs.GetInt("Music") == 1 ? musicOn : musicOff;
     }
 }

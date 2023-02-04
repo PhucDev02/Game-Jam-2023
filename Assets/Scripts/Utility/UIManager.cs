@@ -3,13 +3,28 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     public float timeToAppearance;
     public GameObject howToPlayPanel;
     public GameObject menuPanel;
-
+    public void ClickPlay()
+    {
+        LoadSceneEffect.Instance.PlayLoadSceneEffect("Main");
+    }
+    public void ClickSound()
+    {
+        AudioManager.Instance.ClickSound();
+    }
+    public void ToggleSound()
+    {
+        AudioManager.Instance.ToggleSound();
+    }
+    public void ToggleMusic()
+    {
+        AudioManager.Instance.ToggleMusic();
+    }
     public void ClickHowToPlay()
     {
         howToPlayPanel.SetActive(true);

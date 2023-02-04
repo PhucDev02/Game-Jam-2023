@@ -1,4 +1,4 @@
 public enum EventID
 {
-    test
+    ToggleSound,ToggleMusic
 }

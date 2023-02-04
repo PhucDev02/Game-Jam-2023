@@ -263,6 +263,12 @@ public class Board : MonoBehaviour
             case HeroType.Saw:
                 AudioManager.Instance.Play("ChainSaw");
                 break;
+            case HeroType.Poacher:
+                AudioManager.Instance.Play("Sword");
+                break;
+            case HeroType.Hunter:
+                AudioManager.Instance.Play("Shoot");
+                break;
             default:
                 break;
         }

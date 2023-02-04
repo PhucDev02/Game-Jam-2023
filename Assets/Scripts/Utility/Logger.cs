@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Logger : MonoBehaviour
 {
-    static bool enable = true;
+    static bool enable = false;
     public static void Log(string s)
     {
         if (enable) Debug.Log(s);

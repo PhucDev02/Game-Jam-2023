@@ -1,21 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class SoundS : MonoBehaviour
 {
     public Sprite soundOn;
     public Sprite soundOff;
+    public Image sr;
 
-    SpriteRenderer sr;
 
+    private void Awake()
+    {
+        this.RegisterListener(EventID.ToggleSound, (param) => UpdateSound());
+    }
     private void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
+        UpdateSound();
     }
 
-    private void Update()
+    private void UpdateSound()
     {
-        sr.sprite = AudioManager.Instance.musicOn ? soundOn : soundOff;
+        sr.sprite = PlayerPrefs.GetInt("Sound")==1 ? soundOn : soundOff;
     }
 }
